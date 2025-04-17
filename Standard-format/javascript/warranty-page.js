@@ -1,251 +1,295 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Global variables
-    let mobileMenuOpen = false;
-    let isScrolled = false;
-    let activeTabPanel = 'standard';
+// Variables to track state
+let isScrolled = false;
+let activeTab = 'platinum';
+let activeFaq = null;
+let isHeaderSticky = false;
+let activeSection = null;
+let mobileMenuOpen = false;
+
+// DOM Elements refs will be set on DOMContentLoaded
+let header, optionsSection, warrantyNav, overviewBtn, optionsBtn;
+let warrantyTabs, tabPanels, faqItems, faqQuestions;
+
+// Function to toggle FAQ items
+function toggleFaq(index) {
+  if (activeFaq === index) {
+    // Close the active FAQ
+    faqItems[index].classList.remove('faqActive');
+    const toggleIcon = faqItems[index].querySelector('.faqToggle i');
+    toggleIcon.classList.remove('fa-minus');
+    toggleIcon.classList.add('fa-plus');
     
-    // DOM Elements
-    const header = document.querySelector('.enhancedHeader');
-    const menuButton = document.querySelector('.menuButton');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const closeMenuButton = document.getElementById('closeMenu');
-    const warrantyTabs = document.querySelectorAll('.warrantyTab');
-    const tabPanels = document.querySelectorAll('.tabPanel');
-    const warrantyNav = document.querySelector('.warrantyNav');
-    const faqItems = document.querySelectorAll('.faqItem');
-    
-    // Helper Functions
-    function showTabPanel(tabId) {
-        // Hide all panels
-        tabPanels.forEach(panel => {
-            panel.classList.remove('active');
-        });
-        
-        // Show selected panel
-        const panel = document.getElementById(`${tabId}-panel`);
-        if (panel) {
-            panel.classList.add('active');
-        }
-        
-        // Update tabs
-        warrantyTabs.forEach(tab => {
-            tab.classList.remove('activeTab');
-            if (tab.getAttribute('data-tab') === tabId) {
-                tab.classList.add('activeTab');
-            }
-        });
-        
-        activeTabPanel = tabId;
-    }
-    
-    function toggleFaqItem(item) {
-        const isActive = item.classList.contains('faqActive');
-        
-        // Close all items
-        faqItems.forEach(faq => {
-            faq.classList.remove('faqActive');
-        });
-        
-        // Toggle clicked item
-        if (!isActive) {
-            item.classList.add('faqActive');
-        }
-    }
-    
-    // Event Handlers
-    function handleScroll() {
-        // Header transparency effect
-        if (window.scrollY > 100) {
-            if (!isScrolled) {
-                isScrolled = true;
-                if (header) {
-                    header.classList.add('headerScrolled');
-                }
-            }
-        } else {
-            if (isScrolled) {
-                isScrolled = false;
-                if (header) {
-                    header.classList.remove('headerScrolled');
-                }
-            }
-        }
-        
-        // Sticky nav for warranty options
-        if (warrantyNav) {
-            const warrantyOptions = document.getElementById('warranty-options');
-            if (warrantyOptions) {
-                const navTop = warrantyOptions.offsetTop;
-                if (window.scrollY >= navTop) {
-                    warrantyNav.classList.add('stickyNav');
-                } else {
-                    warrantyNav.classList.remove('stickyNav');
-                }
-            }
-        }
-        
-        // Update active section highlighting if needed
-        const scrollPosition = window.scrollY + 200;
-        
-        const sections = [
-            { id: 'warrantyOverviewContainer', ref: document.querySelector('.warrantyOverviewContainer') },
-            { id: 'warranty-options', ref: document.getElementById('warranty-options') },
-            { id: 'extendedWarrantySection', ref: document.querySelector('.extendedWarrantySection') },
-            { id: 'faqSection', ref: document.querySelector('.faqSection') }
-        ];
-        
-        let activeSection = null;
-        
-        for (let i = 0; i < sections.length; i++) {
-            const section = sections[i];
-            if (section.ref) {
-                const sectionTop = section.ref.offsetTop;
-                const sectionBottom = sectionTop + section.ref.offsetHeight;
-                
-                if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-                    activeSection = section.id;
-                    break;
-                }
-            }
-        }
-        
-        // Update nav highlighting if needed
-        if (activeSection) {
-            document.querySelectorAll('.navLink').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('data-section') === activeSection) {
-                    link.classList.add('active');
-                }
-            });
-        }
-    }
-    
-    function toggleMobileMenu() {
-        mobileMenuOpen = !mobileMenuOpen;
-        if (mobileMenu) {
-            if (mobileMenuOpen) {
-                mobileMenu.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Disable scrolling
-            } else {
-                mobileMenu.classList.remove('active');
-                document.body.style.overflow = 'auto'; // Enable scrolling
-            }
-        }
-    }
-    
-    function handleTabClick(e) {
-        const tabId = e.currentTarget.getAttribute('data-tab');
-        if (tabId) {
-            showTabPanel(tabId);
-            
-            // Scroll to the tab content if on mobile
-            if (window.innerWidth < 768) {
-                const tabPanel = document.getElementById(`${tabId}-panel`);
-                if (tabPanel) {
-                    tabPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }
-        }
-    }
-    
-    function handleFaqClick(e) {
-        const faqItem = e.currentTarget.closest('.faqItem');
-        if (faqItem) {
-            toggleFaqItem(faqItem);
-        }
-    }
-    
-    // Initialise animations for elements that should animate on scroll
-    function initScrollAnimations() {
-        const animatedElements = document.querySelectorAll('.overviewCard, .processStep, .faqItem');
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animated');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, {
-            threshold: 0.2
-        });
-        
-        animatedElements.forEach(element => {
-            observer.observe(element);
-        });
-    }
-    
-    // Event Listeners
-    window.addEventListener('scroll', handleScroll);
-    
-    if (menuButton) {
-        menuButton.addEventListener('click', toggleMobileMenu);
-    }
-    
-    if (closeMenuButton) {
-        closeMenuButton.addEventListener('click', toggleMobileMenu);
-    }
-    
-    // Tab navigation
-    warrantyTabs.forEach(tab => {
-        tab.addEventListener('click', handleTabClick);
-    });
-    
-    // FAQ toggles
+    const answerElem = faqItems[index].querySelector('.faqAnswer');
+    answerElem.style.height = '0';
+    answerElem.style.opacity = '0';
+    activeFaq = null;
+  } else {
+    // Reset all FAQ items
     faqItems.forEach(item => {
-        const question = item.querySelector('.faqQuestion');
-        if (question) {
-            question.addEventListener('click', handleFaqClick);
-        }
+      item.classList.remove('faqActive');
+      const itemIcon = item.querySelector('.faqToggle i');
+      itemIcon.classList.remove('fa-minus');
+      itemIcon.classList.add('fa-plus');
+      
+      const itemAnswer = item.querySelector('.faqAnswer');
+      answerElem.style.height = '0';
+      answerElem.style.opacity = '0';
     });
     
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            const targetId = this.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
-            
-            if (targetElement) {
-                e.preventDefault();
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-                
-                // Close mobile menu if open
-                if (mobileMenuOpen) {
-                    toggleMobileMenu();
-                }
-            }
-        });
+    // Activate selected FAQ item
+    faqItems[index].classList.add('faqActive');
+    const toggleIcon = faqItems[index].querySelector('.faqToggle i');
+    toggleIcon.classList.remove('fa-plus');
+    toggleIcon.classList.add('fa-minus');
+    
+    const answerElem = faqItems[index].querySelector('.faqAnswer');
+    answerElem.style.height = 'auto';
+    answerElem.style.opacity = '1';
+    activeFaq = index;
+  }
+}
+
+// Function to switch tabs
+function switchTab(tab) {
+  activeTab = tab;
+  
+  // Update tab buttons
+  warrantyTabs.forEach(tabBtn => {
+    if (tabBtn.getAttribute('data-tab') === tab) {
+      tabBtn.classList.add('activeTab');
+    } else {
+      tabBtn.classList.remove('activeTab');
+    }
+  });
+  
+  // Update tab panels
+  tabPanels.forEach(panel => {
+    if (panel.id === `${tab}-tab`) {
+      panel.classList.add('active');
+      panel.style.display = 'block';
+    } else {
+      panel.classList.remove('active');
+      panel.style.display = 'none';
+    }
+  });
+}
+
+// Function to handle scroll effects
+function handleScroll() {
+  const scrollY = window.scrollY;
+  
+  // Header scroll effect
+  if (scrollY > 50) {
+    header.classList.add('headerScrolled');
+    isScrolled = true;
+  } else {
+    header.classList.remove('headerScrolled');
+    isScrolled = false;
+  }
+  
+  // Sticky navigation for warranty options
+  if (optionsSection) {
+    const position = optionsSection.getBoundingClientRect();
+    if (position.top <= 0) {
+      warrantyNav.classList.add('stickyNav');
+      isHeaderSticky = true;
+    } else {
+      warrantyNav.classList.remove('stickyNav');
+      isHeaderSticky = false;
+    }
+  }
+  
+  // Active section tracking
+  const scrollPosition = window.scrollY + 200;
+  const overviewSection = document.getElementById('warranty-overview');
+  
+  if (overviewSection && scrollPosition >= overviewSection.offsetTop && 
+      scrollPosition < (optionsSection ? optionsSection.offsetTop : Infinity)) {
+    activeSection = 'overview';
+  } else if (optionsSection && scrollPosition >= optionsSection.offsetTop) {
+    activeSection = 'options';
+  } else {
+    activeSection = null;
+  }
+}
+
+// Function for smooth scrolling
+function scrollTo(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+}
+
+// Function to add animations to cards and buttons
+function setupAnimations() {
+  // Add hover effects to overview cards
+  const overviewCards = document.querySelectorAll('.overviewCard');
+  overviewCards.forEach(card => {
+    card.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-10px)';
+      this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.1)';
+      this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
     });
     
-    // Initialise page state
-    handleScroll(); // Set initial header state
-    showTabPanel(activeTabPanel); // Set initial tab
+    card.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0)';
+      this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.05)';
+    });
+  });
+  
+  // Add hover effects to buttons
+  const warrantyButtons = document.querySelectorAll('.warrantyButton, .ctaButton');
+  warrantyButtons.forEach(button => {
+    button.addEventListener('mouseenter', function() {
+      this.style.transform = 'scale(1.05)';
+      this.style.transition = 'transform 0.2s ease';
+    });
     
-    // Initialise scroll animations with slight delay
-    setTimeout(initScrollAnimations, 500);
+    button.addEventListener('mouseleave', function() {
+      this.style.transform = 'scale(1)';
+    });
     
-    // Add CSS animations
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+    button.addEventListener('mousedown', function() {
+      this.style.transform = 'scale(0.95)';
+    });
+    
+    button.addEventListener('mouseup', function() {
+      this.style.transform = 'scale(1.05)';
+    });
+  });
+}
+
+// Form validation and submission
+function setupForm() {
+  const applicationForm = document.querySelector('.applicationForm');
+  if (applicationForm) {
+    applicationForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Basic validation
+      let isValid = true;
+      const requiredFields = applicationForm.querySelectorAll('[required]');
+      
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          isValid = false;
+          field.classList.add('error');
+        } else {
+          field.classList.remove('error');
         }
-        
-        .overviewCard.animated, 
-        .processStep.animated, 
-        .faqItem.animated {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-        
-        .processStep:nth-child(1), .overviewCard:nth-child(1), .faqItem:nth-child(1) { animation-delay: 0.1s; }
-        .processStep:nth-child(2), .overviewCard:nth-child(2), .faqItem:nth-child(2) { animation-delay: 0.2s; }
-        .processStep:nth-child(3), .overviewCard:nth-child(3), .faqItem:nth-child(3) { animation-delay: 0.3s; }
-        .processStep:nth-child(4), .overviewCard:nth-child(4), .faqItem:nth-child(4) { animation-delay: 0.4s; }
-        .processStep:nth-child(5), .faqItem:nth-child(5) { animation-delay: 0.5s; }
-    `;
-    document.head.appendChild(style);
+      });
+      
+      if (isValid) {
+        // In a real implementation, you would send the form data to a server
+        // For now, just show a success message
+        alert('Thank you for your inquiry! We will contact you shortly.');
+        applicationForm.reset();
+      } else {
+        alert('Please fill in all required fields.');
+      }
+    });
+  }
+}
+
+// Initialize on DOM content loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Get DOM references
+  header = document.querySelector('.enhancedHeader');
+  optionsSection = document.getElementById('warranty-options');
+  warrantyNav = document.querySelector('.warrantyNav');
+  overviewBtn = document.getElementById('overview-btn');
+  optionsBtn = document.getElementById('options-btn');
+  warrantyTabs = document.querySelectorAll('.warrantyTab');
+  tabPanels = document.querySelectorAll('.tabPanel');
+  faqItems = document.querySelectorAll('.faqItem');
+  faqQuestions = document.querySelectorAll('.faqQuestion');
+  
+  // Initialize tabs visibility - hide all non-active tabs first
+  tabPanels.forEach(panel => {
+    if (panel.id !== 'platinum-tab') {
+      panel.style.display = 'none';
+    }
+  });
+  
+  // Initialize tab content
+  switchTab(activeTab);
+  
+  // Scroll event listener
+  window.addEventListener('scroll', handleScroll);
+  
+  // Tab switching
+  warrantyTabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      switchTab(this.getAttribute('data-tab'));
+    });
+  });
+  
+  // FAQ toggle
+  faqQuestions.forEach((question, index) => {
+    question.addEventListener('click', function() {
+      toggleFaq(index);
+    });
+  });
+  
+  // Navigation button events
+  overviewBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    scrollTo('warranty-overview');
+  });
+  
+  optionsBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    scrollTo('warranty-options');
+  });
+  
+  // Setup animations
+  setupAnimations();
+  
+  // Setup form handling
+  setupForm();
+  
+  // Initialize UI based on current scroll position
+  handleScroll();
+});
+
+// Set up the fade-in effect for page load
+window.addEventListener('load', function() {
+  // Fade in hero content
+  const heroContent = document.querySelector('.modernHeroContent');
+  if (heroContent) {
+    heroContent.style.opacity = '0';
+    heroContent.style.transform = 'translateY(30px)';
+    heroContent.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+    
+    setTimeout(() => {
+      heroContent.style.opacity = '1';
+      heroContent.style.transform = 'translateY(0)';
+    }, 100);
+  }
+  
+  // Fade in hero navigation
+  const heroNav = document.querySelector('.heroNavigation');
+  if (heroNav) {
+    heroNav.style.opacity = '0';
+    heroNav.style.transition = 'opacity 0.5s ease';
+    
+    setTimeout(() => {
+      heroNav.style.opacity = '1';
+    }, 600);
+  }
+  
+  // Fade in overview container
+  const overviewContainer = document.querySelector('.warrantyOverviewContainer');
+  if (overviewContainer) {
+    overviewContainer.style.opacity = '0';
+    overviewContainer.style.transition = 'opacity 0.3s ease';
+    
+    setTimeout(() => {
+      overviewContainer.style.opacity = '1';
+    }, 300);
+  }
 });

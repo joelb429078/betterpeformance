@@ -20,6 +20,17 @@
 /* =========================================
    1. Global Variables & Utilities
    ========================================= */
+
+   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+   html {
+      box-sizing: border-box;
+    }
+    
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
+
    :root {
     --finance-primary: #101c17;
     --finance-secondary: #04864a;
@@ -28,6 +39,10 @@
     --finance-light-gray: #f5f5f5;
     --finance-border-gray: #ddd;
     --finance-white: #fff;
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
   }
   
      .container {
