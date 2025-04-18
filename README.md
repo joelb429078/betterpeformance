@@ -1,6 +1,6 @@
 # Better Performance Website Updates
 
-This repository provides updated versions of web pages for integration with the Better Performance website, designed for deployment by Dragon2000. I have structured all of this content so that it is structured to accommodate various web development needs and platforms.
+This repository provides updated versions of web pages for integration with the Better Performance website by JB Websolutions, designed for deployment by Dragon2000. I have structured all of this content so that it is structured to accommodate various web development needs and platforms.
 
 ## Overview of Available Formats
 
