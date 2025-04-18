@@ -22,4 +22,5 @@ This repository provides updated versions of web pages for integration with the 
 ## Integration Notes
 - Choose the directory that best matches your website's current technology stack.
 - Each folder is self-contained with the necessary files to integrate into existing deployments.
+- Any issues please do contact the repository maintainer 
 
